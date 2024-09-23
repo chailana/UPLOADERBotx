@@ -1,5 +1,5 @@
 # (c) @AbirHasan2005 | @PredatorHackerzZ
-
+from telegram.constants import ParseMode
 import asyncio
 from config import Config
 from pyrogram import Client
