@@ -13,7 +13,7 @@ async def ForceSub(bot: Client, cmd: Message):
             await bot.send_message(
                 chat_id=cmd.from_user.id,
                 text="Access Denied ⚠. Contact my [Support Group](https://t.me/TeleRoid14).",
-                parse_mode="markdown",
+                parse_mode="html",
                 disable_web_page_preview=True
             )
             return 400
@@ -28,14 +28,14 @@ async def ForceSub(bot: Client, cmd: Message):
                     ]
                 ]
             ),
-            parse_mode="markdown"
+            parse_mode="html"
         )
         return 400
     except Exception:
         await bot.send_message(
             chat_id=cmd.from_user.id,
             text="Something Went Wrong. Contact my [Support Group](https://t.me/TeleRoid14)",
-            parse_mode="markdown",
+            parse_mode="html",
             disable_web_page_preview=True
         )
         return 400
