@@ -1,19 +1,20 @@
 # (c) @AbirHasan2005 | @PredatorHackerzZ
-from telegram.constants import ParseMode
+
 import asyncio
 from config import Config
 from pyrogram import Client
 from pyrogram.errors import FloodWait, UserNotParticipant
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from telegram.constants import ParseMode  # Correct import for version 20
 
 async def ForceSub(bot: Client, cmd: Message):
     try:
-        user = await bot.get_chat_member(chat_id=(int(Config.UPDATES_CHANNEL) if Config.UPDATE_CHANNEL.startswith("-100") else Config.UPDATE_CHANNEL), user_id=cmd.from_user.id)
+        user = await bot.get_chat_member(chat_id=(int(Config.UPDATES_CHANNEL) if Config.UPDATES_CHANNEL.startswith("-100") else Config.UPDATES_CHANNEL), user_id=cmd.from_user.id)
         if user.status == "banned":
             await bot.send_message(
                 chat_id=cmd.from_user.id,
                 text="Access Denied ⚠. Contact my [Support Group](https://t.me/TeleRoid14).",
-                parse_mode="html",
+                parse_mode=ParseMode.HTML,  # Correct usage for version 20
                 disable_web_page_preview=True
             )
             return 400
@@ -28,14 +29,15 @@ async def ForceSub(bot: Client, cmd: Message):
                     ]
                 ]
             ),
-            parse_mode="html"
+            parse_mode=ParseMode.HTML,  # Correct usage for version 20
+            disable_web_page_preview=True
         )
         return 400
-    except Exception:
+    except Exception as e:
         await bot.send_message(
             chat_id=cmd.from_user.id,
             text="Something Went Wrong. Contact my [Support Group](https://t.me/TeleRoid14)",
-            parse_mode="html",
+            parse_mode=ParseMode.HTML,  # Correct usage for version 20
             disable_web_page_preview=True
         )
         return 400
