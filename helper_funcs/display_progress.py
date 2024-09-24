@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # (c) Shrimadhav U K
-
+from pyrogram.enums import ParseMode
 # the logging things
 import logging
 logging.basicConfig(level=logging.DEBUG,
@@ -51,7 +51,7 @@ async def progress_for_pyrogram(current, total, ud_type, message, start):
               ud_type,
               tmp
                 ),
-                parse_mode='html',
+                parse_mode=ParseMode.HTML,
                 reply_markup=InlineKeyboardMarkup(
                     [
                         [ 
