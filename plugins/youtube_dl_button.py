@@ -42,13 +42,13 @@ async def youtube_dl_call_back(bot, update):
 
     # Check if the message is a reply and has the required data.
     if not update.message.reply_to_message:
-        await bot.send_message(
-            chat_id=update.message.chat.id,
-            text="Please reply to a message containing a valid URL.",
-            parse_mode=ParseMode.HTML,
-            reply_to_message_id=update.message.message_id,
-        )
-        return
+    await bot.send_message(
+        chat_id=update.message.chat.id,
+        text="Please reply to a message containing a valid URL.",
+        parse_mode=ParseMode.HTML,
+        reply_to_message_id=update.id if update.message is None else update.message.message_id,
+    )
+    return
     
     youtube_dl_url = update.message.reply_to_message.text  # Safely access text now that we've checked
 
