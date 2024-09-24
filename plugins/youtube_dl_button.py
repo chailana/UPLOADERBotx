@@ -46,7 +46,7 @@ async def youtube_dl_call_back(bot, update):
             chat_id=update.message.chat.id,
             text="Please reply to a message containing a valid URL.",
             parse_mode=ParseMode.HTML,
-            reply_to_message_id=update.id if update.message is None else update.message.message_id,
+            reply_to_message_id=update.message.message_id if update.message else update.id,
         )
         return
     
