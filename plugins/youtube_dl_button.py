@@ -14,6 +14,7 @@ import math
 import os
 import shutil
 import time
+from pyrogram.enums import ParseMode
 from datetime import datetime
 # the secret configuration specific things
 from config import Config
