@@ -3,7 +3,7 @@ import asyncio
 import json
 import os
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-
+from pyrogram.enums import ParseMode
 # Initialize your bot client
 app = Client("my_bot")
 
@@ -70,7 +70,7 @@ async def echo(client, message):
         
         await client.send_message(chat_id=message.chat.id,
                                   text=Translation.NO_VOID_FORMAT_FOUND.format(str(error_message)),
-                                  disable_web_page_preview=True, parse_mode="html",
+                                  disable_web_page_preview=True, parse_mode=ParseMode.HTML,
                                   reply_to_message_id=message.message_id)
         
         await imog.delete()
@@ -119,7 +119,7 @@ async def echo(client, message):
         await client.send_message(chat_id=message.chat.id,
                                   text=Translation.FORMAT_SELECTION + "\n" + Translation.SET_CUSTOM_USERNAME_PASSWORD,
                                   reply_markup=reply_markup,
-                                  parse_mode="html",
+                                  parse_mode=ParseMode.HTML,
                                   reply_to_message_id=message.message_id)
 
 # Start the bot using asyncio.run to handle the event loop correctly
