@@ -19,6 +19,7 @@ from translation import Translation
 from pyrogram import filters, Client as Clinton
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ParseMode
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -183,5 +184,50 @@ async def echo(bot, update):
             parse_mode=ParseMode.HTML,
             reply_to_message_id=getattr(update, 'message_id', None),
         )
+
+@Clinton.on_callback_query()
+async def youtube_dl_call_back(bot, update):
+    # Ensure that we have a valid callback query and data is present.
+    if not update.data:
+        await bot.answer_callback_query(
+            callback_query_id=update.id,
+            text="Invalid request.",
+            show_alert=True
+        )
+        return
+
+    # Check if the callback is from a message reply.
+    if update.message and update.message.reply_to_message:
+        youtube_dl_url = update.message.reply_to_message.text
+    else:
+        await bot.answer_callback_query(
+            callback_query_id=update.id,
+            text="Please reply to a message containing a valid URL.",
+            show_alert=True
+        )
+        return
+
+    # Extract format information from callback data.
+    callback_data_parts = update.data.split('|')
+    if len(callback_data_parts) < 3:
+        await bot.answer_callback_query(
+            callback_query_id=update.id,
+            text="Invalid format selection.",
+            show_alert=True
+        )
+        return
+
+    action_type, format_id, format_ext = callback_data_parts
+
+    logger.info(f"Selected format: {action_type}, ID: {format_id}, Extension: {format_ext}")
+
+    # Here you can continue with your yt-dlp command execution or any other processing needed.
+    
+    # Example of sending a confirmation message back to the user.
+    await bot.send_message(
+        chat_id=update.message.chat.id,
+        text=f"You selected {action_type} with format ID {format_id} and extension {format_ext}.",
+        reply_to_message_id=update.message.message_id,
+    )
 
 # Note: Ensure that all necessary imports and configurations are correctly set up.
