@@ -39,7 +39,7 @@ async def help_user(bot, message):
         text=Translation.HELP_TEXT,
         parse_mode="html",
         disable_web_page_preview=True,
-        reply_to_message_id=message.message_id,
+        reply_to_message_id=message.id,  # Updated here
         reply_markup=Translation.HELP_BUTTONS
     )
 
@@ -55,7 +55,7 @@ async def start(bot, message):
         text=Translation.START_TEXT.format(message.from_user.mention),
         parse_mode="html",
         disable_web_page_preview=True,
-        reply_to_message_id=message.message_id,
+        reply_to_message_id=message.id,  # Updated here
         reply_markup=Translation.START_BUTTONS
     )
 
@@ -70,6 +70,6 @@ async def about_user(bot, message):
         text=Translation.ABOUT_TEXT,
         parse_mode="html",
         disable_web_page_preview=True,
-        reply_to_message_id=message.message_id,
+        reply_to_message_id=message.id,  # Updated here
         reply_markup=Translation.ABOUT_BUTTONS
     )
