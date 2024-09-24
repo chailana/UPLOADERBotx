@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# (c) Shrimadhav U K | Modifieded By : @DC4_WARRIOR
+# (c) Shrimadhav U K | Modified By : @DC4_WARRIOR
 
 # the logging things
 import logging
@@ -30,24 +30,24 @@ from helper_funcs.help_Nekmo_ffmpeg import take_screen_shot
 async def save_photo(bot, update):
     await AddUser(bot, update)
     await clinton.set_thumbnail(update.from_user.id, thumbnail=update.photo.file_id)
-    await bot.send_message(chat_id=update.chat.id, text=Translation.SAVED_CUSTOM_THUMB_NAIL, reply_to_message_id=update.message_id)
+    await bot.send_message(chat_id=update.chat.id, text=Translation.SAVED_CUSTOM_THUMB_NAIL, reply_to_message_id=update.id)
 
 @Clinton.on_message(filters.private & filters.command("delthumbnail"))
 async def delthumbnail(bot, update):
     await AddUser(bot, update)
     await clinton.set_thumbnail(update.from_user.id, thumbnail=None)
-    await bot.send_message(chat_id=update.chat.id, text=Translation.DEL_ETED_CUSTOM_THUMB_NAIL, reply_to_message_id=update.message_id)
+    await bot.send_message(chat_id=update.chat.id, text=Translation.DEL_ETED_CUSTOM_THUMB_NAIL, reply_to_message_id=update.id)
 
-@Clinton.on_message(filters.private & filters.command("viewthumbnail") )
+@Clinton.on_message(filters.private & filters.command("viewthumbnail"))
 async def viewthumbnail(bot, update):
     await AddUser(bot, update)
     thumbnail = await clinton.get_thumbnail(update.from_user.id)
     if thumbnail is not None:
         await bot.send_photo(
-        chat_id=update.chat.id,
-        photo=thumbnail,
-        caption=f"Your current saved thumbnail 🦠",
-        reply_to_message_id=update.message_id)
+            chat_id=update.chat.id,
+            photo=thumbnail,
+            caption=f"Your current saved thumbnail 🦠",
+            reply_to_message_id=update.id)
     else:
         await update.reply_text(text=f"No Thumbnail found 🤒")
 
@@ -76,40 +76,37 @@ async def Gthumb02(bot, update, duration, download_directory):
     return thumbnail
 
 async def Mdata01(download_directory):
+    width = 0
+    height = 0
+    duration = 0
+    metadata = extractMetadata(createParser(download_directory))
+    if metadata is not None:
+        if metadata.has("duration"):
+            duration = metadata.get('duration').seconds
+        if metadata.has("width"):
+            width = metadata.get("width")
+        if metadata.has("height"):
+            height = metadata.get("height")
 
-          width = 0
-          height = 0
-          duration = 0
-          metadata = extractMetadata(createParser(download_directory))
-          if metadata is not None:
-              if metadata.has("duration"):
-                  duration = metadata.get('duration').seconds
-              if metadata.has("width"):
-                  width = metadata.get("width")
-              if metadata.has("height"):
-                  height = metadata.get("height")
-
-          return width, height, duration
+    return width, height, duration
 
 async def Mdata02(download_directory):
+    width = 0
+    duration = 0
+    metadata = extractMetadata(createParser(download_directory))
+    if metadata is not None:
+        if metadata.has("duration"):
+            duration = metadata.get('duration').seconds
+        if metadata.has("width"):
+            width = metadata.get("width")
 
-          width = 0
-          duration = 0
-          metadata = extractMetadata(createParser(download_directory))
-          if metadata is not None:
-              if metadata.has("duration"):
-                  duration = metadata.get('duration').seconds
-              if metadata.has("width"):
-                  width = metadata.get("width")
-
-          return width, duration
+    return width, duration
 
 async def Mdata03(download_directory):
+    duration = 0
+    metadata = extractMetadata(createParser(download_directory))
+    if metadata is not None:
+        if metadata.has("duration"):
+            duration = metadata.get('duration').seconds
 
-          duration = 0
-          metadata = extractMetadata(createParser(download_directory))
-          if metadata is not None:
-              if metadata.has("duration"):
-                  duration = metadata.get('duration').seconds
-
-          return duration
+    return duration
