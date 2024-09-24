@@ -18,7 +18,7 @@ from database.adduser import AddUser
 from translation import Translation
 from pyrogram import filters, Client as Clinton
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-
+from pyrogram.enums import ParseMode
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -106,7 +106,7 @@ async def echo(bot, update):
             chat_id=update.chat.id,
             text=Translation.NO_VOID_FORMAT_FOUND.format(str(error_message)),
             reply_to_message_id=getattr(update, 'message_id', None),
-            parse_mode="html",
+            parse_mode=ParseMode.HTML,
             disable_web_page_preview=True,
         )
         return
@@ -159,7 +159,7 @@ async def echo(bot, update):
             chat_id=update.chat.id,
             text=Translation.FORMAT_SELECTION + "\n" + Translation.SET_CUSTOM_USERNAME_PASSWORD,
             reply_markup=reply_markup,
-            parse_mode="html",
+            parse_mode=ParseMode.HTML,
             reply_to_message_id=getattr(update, 'message_id', None),
         )
     
@@ -180,7 +180,7 @@ async def echo(bot, update):
             chat_id=update.chat.id,
             text=Translation.FORMAT_SELECTION,
             reply_markup=reply_markup,
-            parse_mode="html",
+            parse_mode=ParseMode.HTML,
             reply_to_message_id=getattr(update, 'message_id', None),
         )
 
