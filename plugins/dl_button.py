@@ -9,6 +9,7 @@ logging.basicConfig(level=logging.DEBUG,
 logger = logging.getLogger(__name__)
 import asyncio
 import aiohttp
+from pyrogram.enums import ParseMode
 import json
 import math
 import os
@@ -167,7 +168,7 @@ async def ddl_call_back(bot, update):
                     chat_id=update.message.chat.id,
                     video_note=download_directory,
                     caption=description,
-                    parse_mode="HTML",
+                    parse_mode=ParseMode.HTML,
                     duration=duration,
                     length=width,
                     thumb=thumb_image_path,
