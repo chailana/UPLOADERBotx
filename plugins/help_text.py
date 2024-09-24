@@ -23,6 +23,7 @@ from helper_funcs.forcesub import ForceSub
 from pyrogram import filters
 from database.adduser import AddUser
 from pyrogram import Client as Clinton
+from pyrogram.enums import ParseMode  # Import ParseMode here
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery, ForceReply
@@ -37,7 +38,7 @@ async def help_user(bot, message):
     await bot.send_message(
         chat_id=message.chat.id,
         text=Translation.HELP_TEXT,
-        parse_mode="html",
+        parse_mode=ParseMode.HTML,  # Changed here
         disable_web_page_preview=True,
         reply_to_message_id=message.id,  # Updated here
         reply_markup=Translation.HELP_BUTTONS
@@ -53,7 +54,7 @@ async def start(bot, message):
     await bot.send_message(
         chat_id=message.chat.id,
         text=Translation.START_TEXT.format(message.from_user.mention),
-        parse_mode="html",
+        parse_mode=ParseMode.HTML,  # Changed here
         disable_web_page_preview=True,
         reply_to_message_id=message.id,  # Updated here
         reply_markup=Translation.START_BUTTONS
@@ -68,7 +69,7 @@ async def about_user(bot, message):
     await bot.send_message(
         chat_id=message.chat.id,
         text=Translation.ABOUT_TEXT,
-        parse_mode="html",
+        parse_mode=ParseMode.HTML,  # Changed here
         disable_web_page_preview=True,
         reply_to_message_id=message.id,  # Updated here
         reply_markup=Translation.ABOUT_BUTTONS
