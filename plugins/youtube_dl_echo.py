@@ -38,7 +38,7 @@ async def echo(client, message):
                 l = entity.length
                 url = url[o:o + l]
 
-    if url is None:
+    if not url:
         await imog.edit("No valid URL found.")
         return
 
@@ -122,5 +122,6 @@ async def echo(client, message):
                                   parse_mode="html",
                                   reply_to_message_id=message.message_id)
 
-# Start the bot
-app.run()
+# Start the bot using asyncio.run to handle the event loop correctly
+if __name__ == "__main__":
+    asyncio.run(app.run())
