@@ -29,50 +29,47 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, 
 
 
 @Clinton.on_message(filters.private & filters.command(["help"]))
-async def help_user(bot, update):
-    # logger.info(update)
-    await AddUser(bot, update)
-    forcesub = await ForceSub(bot, update)
+async def help_user(bot, message):
+    await AddUser(bot, message)
+    forcesub = await ForceSub(bot, message)
     if forcesub == 400:
         return
     await bot.send_message(
-        chat_id=update.chat.id,
+        chat_id=message.chat.id,
         text=Translation.HELP_TEXT,
         parse_mode="html",
         disable_web_page_preview=True,
-        reply_to_message_id=update.message_id,
+        reply_to_message_id=message.message_id,
         reply_markup=Translation.HELP_BUTTONS
-   )
+    )
 
 
 @Clinton.on_message(filters.private & filters.command(["start"]))
-async def start(bot, update):
-    # logger.info(update)
-    await AddUser(bot, update)
-    forcesub = await ForceSub(bot, update)
+async def start(bot, message):
+    await AddUser(bot, message)
+    forcesub = await ForceSub(bot, message)
     if forcesub == 400:
         return
     await bot.send_message(
-        chat_id=update.chat.id,
-        text=Translation.START_TEXT.format(update.from_user.mention),
+        chat_id=message.chat.id,
+        text=Translation.START_TEXT.format(message.from_user.mention),
         parse_mode="html",
         disable_web_page_preview=True,
-        reply_to_message_id=update.message_id,
+        reply_to_message_id=message.message_id,
         reply_markup=Translation.START_BUTTONS
     )
 
-@Clinton.on_message(filters.private & filters.command("about") )
-async def about_user(bot, update):
-    # logger.info(update)
-    await AddUser(bot, update)
-    forcesub = await ForceSub(bot, update)
+@Clinton.on_message(filters.private & filters.command("about"))
+async def about_user(bot, message):
+    await AddUser(bot, message)
+    forcesub = await ForceSub(bot, message)
     if forcesub == 400:
         return
     await bot.send_message(
-        chat_id=update.chat.id,
+        chat_id=message.chat.id,
         text=Translation.ABOUT_TEXT,
         parse_mode="html",
         disable_web_page_preview=True,
-        reply_to_message_id=update.message_id,
+        reply_to_message_id=message.message_id,
         reply_markup=Translation.ABOUT_BUTTONS
     )
