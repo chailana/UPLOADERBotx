@@ -138,7 +138,7 @@ async def clendir(directory):
 # Main function to start the bot (example)
 app = Client("my_bot")
 
-@app.on_message(filters.text & filters.private)
+@app.on_message(filter.text & filter.private)
 async def message_handler(client, message):
     url = message.text.strip()
     
