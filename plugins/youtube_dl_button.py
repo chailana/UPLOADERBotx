@@ -16,18 +16,29 @@ from helper_funcs.display_progress import progress_for_pyrogram, humanbytes
 
 async def youtube_dl_call_back(bot, update):
     try:
-        cb_data = update.data
+        # Handle callback query data
+        cb_data = update.data  # Get callback data from the inline button
         tg_send_type, youtube_dl_format, youtube_dl_ext = cb_data.split("|")
         save_ytdl_json_path = Config.DOWNLOAD_LOCATION + "/" + str(update.from_user.id) + ".json"
+        
+        # Read the YouTube video data from JSON
         with open(save_ytdl_json_path, "r", encoding="utf8") as f:
             response_json = json.load(f)
-    except Exception:
+    except Exception as e:
         await update.message.delete(True)
         return
-    youtube_dl_url = update.message.reply_to_message.text
+
+    # Handle the original message where the button was pressed
+    youtube_dl_url = update.message.reply_to_message.text if update.message.reply_to_message else None
+    if not youtube_dl_url:
+        await bot.edit_message_text(text="ERROR: No message to reply to. Please reply to a valid message.", chat_id=update.message.chat.id, message_id=update.message.id)
+        return
+
     custom_file_name = str(response_json.get("title"))[:50] + "_" + youtube_dl_format
     youtube_dl_username = None
     youtube_dl_password = None
+
+    # Process URL and custom file name
     if "|" in youtube_dl_url:
         url_parts = youtube_dl_url.split("|")
         if len(url_parts) == 2:
@@ -46,14 +57,12 @@ async def youtube_dl_call_back(bot, update):
                     o = entity.offset
                     l = entity.length
                     youtube_dl_url = youtube_dl_url[o:o + l]
-        if youtube_dl_url is not None:
-            youtube_dl_url = youtube_dl_url.strip()
-        if custom_file_name is not None:
-            custom_file_name = custom_file_name.strip()
-        if youtube_dl_username is not None:
-            youtube_dl_username = youtube_dl_username.strip()
-        if youtube_dl_password is not None:
-            youtube_dl_password = youtube_dl_password.strip()
+
+        # Strip values
+        youtube_dl_url = youtube_dl_url.strip() if youtube_dl_url else youtube_dl_url
+        custom_file_name = custom_file_name.strip() if custom_file_name else custom_file_name
+        youtube_dl_username = youtube_dl_username.strip() if youtube_dl_username else youtube_dl_username
+        youtube_dl_password = youtube_dl_password.strip() if youtube_dl_password else youtube_dl_password
     else:
         for entity in update.message.reply_to_message.entities:
             if entity.type == "text_link":
@@ -67,9 +76,13 @@ async def youtube_dl_call_back(bot, update):
     description = Translation.CUSTOM_CAPTION_UL_FILE
     if "fulltitle" in response_json:
         description = response_json["fulltitle"][0:1021]
+
+    # Create temporary download directory for each user
     tmp_directory_for_each_user = Config.DOWNLOAD_LOCATION + "/" + str(update.from_user.id)
     if not os.path.isdir(tmp_directory_for_each_user):
         os.makedirs(tmp_directory_for_each_user)
+
+    # Handle custom file name
     if '/' in custom_file_name:
         file_mimx = custom_file_name
         file_maix = file_mimx.split('/')
@@ -77,140 +90,152 @@ async def youtube_dl_call_back(bot, update):
     else:
         file_name = custom_file_name
 
+    # Prepare command to execute
     command_to_exec = []
     command_to_exec.append("--quiet")
     command_to_exec.append("--no-warnings")
     download_directory = tmp_directory_for_each_user + "/" + str(file_name) + "." + youtube_dl_ext
+
     if tg_send_type == "audio":
-        command_to_exec = ["yt-dlp", "-c",
-        "--prefer-ffmpeg", "--extract-audio",
-        "--audio-format", youtube_dl_ext,
-        "--audio-quality", youtube_dl_format,
-        youtube_dl_url, "-o", download_directory]
+        command_to_exec = [
+            "yt-dlp", "-c",
+            "--prefer-ffmpeg", "--extract-audio",
+            "--audio-format", youtube_dl_ext,
+            "--audio-quality", youtube_dl_format,
+            youtube_dl_url, "-o", download_directory
+        ]
     else:
         minus_f_format = youtube_dl_format
         if "youtu" in youtube_dl_url:
             minus_f_format = youtube_dl_format + "+bestaudio"
-        command_to_exec = ["yt-dlp", "-c",
-        "--embed-subs", "-f", minus_f_format,
-        "--hls-prefer-ffmpeg", youtube_dl_url,
-        "-o", download_directory]
+        command_to_exec = [
+            "yt-dlp", "-c",
+            "--embed-subs", "-f", minus_f_format,
+            "--hls-prefer-ffmpeg", youtube_dl_url,
+            "-o", download_directory
+        ]
 
-    if youtube_dl_username is not None:
+    # Add credentials if provided
+    if youtube_dl_username:
         command_to_exec.append("--username")
         command_to_exec.append(youtube_dl_username)
-    if youtube_dl_password is not None:
+    if youtube_dl_password:
         command_to_exec.append("--password")
         command_to_exec.append(youtube_dl_password)
 
     start = datetime.now()
     asyncio.create_task(clendir(save_ytdl_json_path))
     process = await asyncio.create_subprocess_exec(*command_to_exec,
-    stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+                                                   stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await process.communicate()
     e_response = stderr.decode().strip()
     t_response = stdout.decode().strip()
+
     if e_response:
         await bot.edit_message_text(chat_id=update.message.chat.id,
-        message_id=update.message.id, text="ERROR : Download failed ⚠️")
+                                     message_id=update.message.id, text="ERROR: Download failed ⚠️")
         return
     if not t_response:
         asyncio.create_task(clendir(tmp_directory_for_each_user))
         await bot.edit_message_text(chat_id=update.message.chat.id,
-        text="ERROR : File not found 😑", message_id=update.message.id)
+                                     text="ERROR: File not found 😑", message_id=update.message.id)
         return
+
     file_size, file_location = await get_flocation(download_directory, youtube_dl_ext)
     if file_size == 0:
-        await update.message.edit(text="ERROR : File Not found 🙁")
+        await update.message.edit(text="ERROR: File not found 🙁")
         asyncio.create_task(clendir(tmp_directory_for_each_user))
         return
+
     await update.message.edit(text=Translation.UPLOAD_START)
+
     try:
         start_time = time.time()
         if tg_send_type == "audio":
             duration = await Mdata03(file_location)
             thumbnail = await Gthumb01(bot, update)
             await bot.send_audio(
-            chat_id=update.message.chat.id,
-            audio=file_location,
-            caption=description,
-            parse_mode=ParseMode.HTML,
-            duration=duration,
-            thumb=thumbnail,
-            reply_to_message_id=update.message.reply_to_message.id,
-            progress=progress_for_pyrogram,
-            progress_args=(Translation.UPLOAD_START, update.message, start_time))
+                chat_id=update.message.chat.id,
+                audio=file_location,
+                caption=description,
+                parse_mode=ParseMode.HTML,
+                duration=duration,
+                thumb=thumbnail,
+                reply_to_message_id=update.message.reply_to_message.id,
+                progress=progress_for_pyrogram,
+                progress_args=(Translation.UPLOAD_START, update.message, start_time)
+            )
         elif tg_send_type == "file":
             thumbnail = await Gthumb01(bot, update)
             await bot.send_document(chat_id=update.message.chat.id,
-            document=file_location,
-            thumb=thumbnail,
-            caption=description,
-            parse_mode=ParseMode.HTML,
-            reply_to_message_id=update.message.reply_to_message.id,
-            progress=progress_for_pyrogram,
-            progress_args=(Translation.UPLOAD_START, update.message, start_time))
+                                    document=file_location,
+                                    thumb=thumbnail,
+                                    caption=description,
+                                    parse_mode=ParseMode.HTML,
+                                    reply_to_message_id=update.message.reply_to_message.id,
+                                    progress=progress_for_pyrogram,
+                                    progress_args=(Translation.UPLOAD_START, update.message, start_time))
         elif tg_send_type == "vm":
             width, duration = await Mdata02(file_location)
             thumbnail = await Gthumb02(bot, update, duration, file_location)
             await bot.send_video_note(chat_id=update.message.chat.id,
-            video_note=file_location,
-            duration=duration,
-            length=width,
-            thumb=thumb_image_path,
-            reply_to_message_id=update.message.reply_to_message.id,
-            progress=progress_for_pyrogram,
-            progress_args=(Translation.UPLOAD_START, update.message, start_time))
+                                      video_note=file_location,
+                                      duration=duration,
+                                      length=width,
+                                      thumb=thumbnail,
+                                      reply_to_message_id=update.message.reply_to_message.id,
+                                      progress=progress_for_pyrogram,
+                                      progress_args=(Translation.UPLOAD_START, update.message, start_time))
         elif tg_send_type == "video":
             width, height, duration = await Mdata01(file_location)
             thumbnail = await Gthumb02(bot, update, duration, file_location)
             await bot.send_video(chat_id=update.message.chat.id,
-            video=file_location,
-            caption=description,
-            parse_mode=ParseMode.HTML,
-            duration=duration,
-            width=width,
-            height=height,
-            thumb=thumbnail,
-            supports_streaming=True,
-            reply_to_message_id=update.message.reply_to_message.id,
-            progress=progress_for_pyrogram,
-            progress_args=(Translation.UPLOAD_START,
-            update.message, start_time) )
+                                 video=file_location,
+                                 caption=description,
+                                 parse_mode=ParseMode.HTML,
+                                 duration=duration,
+                                 width=width,
+                                 height=height,
+                                 thumb=thumbnail,
+                                 supports_streaming=True,
+                                 reply_to_message_id=update.message.reply_to_message.id,
+                                 progress=progress_for_pyrogram,
+                                 progress_args=(Translation.UPLOAD_START,
+                                                update.message, start_time))
         else:
             thumbnail = await Gthumb01(bot, update)
             await bot.send_document(chat_id=update.message.chat.id,
-            document=file_location,
-            thumb=thumbnail,
-            caption=description,
-            parse_mode=ParseMode.HTML,
-            reply_to_message_id=update.message.reply_to_message.id,
-            progress=progress_for_pyrogram,
-            progress_args=(Translation.UPLOAD_START, update.message, start_time))
+                                    document=file_location,
+                                    thumb=thumbnail,
+                                    caption=description,
+                                    parse_mode=ParseMode.HTML,
+                                    reply_to_message_id=update.message.reply_to_message.id,
+                                    progress=progress_for_pyrogram,
+                                    progress_args=(Translation.UPLOAD_START, update.message, start_time))
 
         asyncio.create_task(clendir(file_location))
         asyncio.create_task(clendir(thumbnail))
         await bot.edit_message_text(
-        text="Uploaded sucessfully ✓\n\nJOIN : @SPACE_X_BOTS",
-        chat_id=update.message.chat.id,
-        message_id=update.message.id,
-        disable_web_page_preview=True)
+            text="Uploaded successfully ✓\n\nJOIN: @SPACE_X_BOTS",
+            chat_id=update.message.chat.id,
+            message_id=update.message.id,
+            disable_web_page_preview=True
+        )
     except Exception as e:
         asyncio.create_task(clendir(download_directory))
         await bot.edit_message_text(text=Translation.ERROR.format(e),
-        chat_id=update.message.chat.id, message_id=update.message.id)
+                                     chat_id=update.message.chat.id, message_id=update.message.id)
 
 #=================================
 
 async def clendir(directory):
-
     try:
         os.remove(directory)
-    except:
+    except Exception:
         pass
     try:
         shutil.rmtree(directory)
-    except:
+    except Exception:
         pass
 
 #=================================
