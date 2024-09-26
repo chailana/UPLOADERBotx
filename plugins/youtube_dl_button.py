@@ -31,7 +31,7 @@ async def youtube_dl_call_back(bot, update):
     # Handle the original message where the button was pressed
     youtube_dl_url = update.message.reply_to_message.text if update.message.reply_to_message else None
     if not youtube_dl_url:
-        await bot.edit_message_text(text="ERROR: No message to reply to. Please reply to a valid message.", chat_id=update.message.chat.id, message_id=update.message.id)
+        await bot.edit_message_text(text="ERROR: No message to reply to. Please reply to a valid message.", chat_id=update.message.chat.id, message_id=update.id)
         return
 
     custom_file_name = str(response_json.get("title"))[:50] + "_" + youtube_dl_format
