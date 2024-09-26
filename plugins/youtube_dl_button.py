@@ -79,7 +79,7 @@ async def youtube_dl_call_back(bot, update):
     await bot.edit_message_text(
     text=Translation.DOWNLOAD_START,
     chat_id=update.message.chat.id,
-    message_id=update.message.message_id)
+    message_id=update.message.messsge.id)
     description = Translation.CUSTOM_CAPTION_UL_FILE
     if "fulltitle" in response_json:
         description = response_json["fulltitle"][0:1021]
@@ -137,7 +137,7 @@ async def youtube_dl_call_back(bot, update):
         error_message = e_response.replace(ad_string_to_replace, "")
         await bot.edit_message_text(
         chat_id=update.message.chat.id,
-        message_id=update.message.id,
+        message_id=update.message.messsge.id,
         text=error_message)
         return False
     if t_response:
@@ -164,12 +164,12 @@ async def youtube_dl_call_back(bot, update):
             await bot.edit_message_text(
             chat_id=update.message.chat.id,
             text=Translation.RCHD_TG_API_LIMIT.format(time_taken_for_download, humanbytes(file_size)),
-            message_id=update.message.id)
+            message_id=update.message.messsge.id)
         else:
             await bot.edit_message_text(
             text=Translation.UPLOAD_START,
             chat_id=update.message.chat.id,
-            message_id=update.message.id)
+            message_id=update.message.message.id)
             start_time = time.time()
             if tg_send_type == "audio":
                 duration = await Mdata03(download_directory)
