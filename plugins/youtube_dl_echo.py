@@ -41,7 +41,7 @@ async def echo(bot, update):
 
     # Check if message has message_id attribute and handle accordingly
     if hasattr(update, 'message_id'):
-        imog = await update.reply_text("Processing...⚡", reply_to_message_id=update.message_id)
+        imog = await update.reply_text("Processing...⚡", reply_to_message_id=update.id)
     else:
         imog = await update.reply_text("Processing...⚡")
 
@@ -236,7 +236,7 @@ async def youtube_dl_call_back(bot, update: CallbackQuery):
     await bot.send_message(
         chat_id=update.message.chat.id,
         text=f"You selected {action_type} with format ID {format_id} and extension {format_ext}.",
-        reply_to_message_id=update.message.message_id,
+        reply_to_message_id=update.message.id,
     )
 
 # Note: Ensure that all necessary imports and configurations are correctly set up.
